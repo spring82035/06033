@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>隨堂小測驗</title>
+  <!-- 引入 Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 引入 Google Fonts 使字體更圓潤活潑 -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      /* 乾淨明亮的背景色 */
+      background-color: #f0f9ff; 
+    }
+    
+    /* 自訂選擇題按鈕樣式，讓它更大更好點擊 */
+    input[type="radio"] {
+      width: 1.25rem;
+      height: 1.25rem;
+      accent-color: #3b82f6;
+      cursor: pointer;
+    }
+    
+    .option-label {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      transition: background-color 0.2s;
+    }
+    
+    .option-label:hover {
+      background-color: #e0f2fe;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+  <!-- 測驗主容器 -->
+  <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-8 w-full max-w-lg relative overflow-hidden">
+    
+    <!-- 頂部裝飾 -->
+    <div class="absolute top-0 left-0 w-full h-3 bg-gradient-to-r from-blue-400 to-indigo-500"></div>
+
+    <h1 class="text-3xl font-bold text-center text-gray-800 mb-8 mt-2">
+      📝 隨堂小測驗
+    </h1>
+
+    <!-- 訊息提示框 (用來取代 alert) -->
+    <div id="messageBox" class="hidden mb-6 p-4 rounded-lg text-white font-bold text-center transition-all">
+      <!-- 訊息內容會動態插入 -->
+    </div>
+
+    <!-- 測驗表單 -->
+    <form id="quizForm" onsubmit="submitQuiz(event)">
+      
+      <!-- 學生姓名輸入框 -->
+      <div class="mb-8 bg-blue-50 p-5 rounded-xl border border-blue-100">
+        <label for="studentName" class="block text-lg font-bold text-gray-700 mb-2">
+          👤 學生姓名
+        </label>
+        <input 
+          type="text" 
+          id="studentName" 
+          placeholder="請輸入你的名字..." 
+          class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg transition-all"
+        >
+      </div>
+
+      <!-- 第一題 -->
+      <div class="mb-8">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">
+          Q1. 台灣最高的山是哪一座？
+        </h2>
+        <div class="space-y-2">
+          <label class="option-label border border-gray-200">
+            <input type="radio" name="q1" value="阿里山" class="mr-3">
+            <span class="text-lg text-gray-700">阿里山</span>
+          </label>
+          <label class="option-label border border-gray-200">
+            <input type="radio" name="q1" value="玉山" class="mr-3">
+            <span class="text-lg text-gray-700">玉山</span>
+          </label>
+          <label class="option-label border border-gray-200">
+            <input type="radio" name="q1" value="陽明山" class="mr-3">
+            <span class="text-lg text-gray-700">陽明山</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 第二題 -->
+      <div class="mb-8">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">
+          Q2. 水的三態中，固態稱為什麼？
+        </h2>
+        <div class="space-y-2">
+          <label class="option-label border border-gray-200">
+            <input type="radio" name="q2" value="冰" class="mr-3">
+            <span class="text-lg text-gray-700">冰</span>
+          </label>
+          <label class="option-label border border-gray-200">
+            <input type="radio" name="q2" value="水蒸氣" class="mr-3">
+            <span class="text-lg text-gray-700">水蒸氣</span>
+          </label>
+          <label class="option-label border border-gray-200">
+            <input type="radio" name="q2" value="雲" class="mr-3">
+            <span class="text-lg text-gray-700">雲</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 送出按鈕 -->
+      <button 
+        type="submit" 
+        id="submitBtn"
+        class="w-full bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-bold py-4 px-6 rounded-xl text-xl shadow-lg transform transition-all hover:scale-[1.02] active:scale-95"
+      >
+        🚀 送出並看成績
+      </button>
+    </form>
+
+    <!-- 成績結果顯示區塊 (預設隱藏) -->
+    <div id="resultArea" class="hidden mt-8 text-center bg-gray-50 p-8 rounded-2xl border-2 border-dashed border-gray-300">
+      <div class="text-5xl mb-4">🏆</div>
+      <h2 class="text-2xl font-bold text-gray-800 mb-2">測驗完成！</h2>
+      <p id="resultName" class="text-xl text-gray-600 mb-4"></p>
+      <div class="inline-block bg-white px-6 py-4 rounded-xl shadow-sm border border-gray-100">
+        <p class="text-lg text-gray-500 mb-1">你的分數是</p>
+        <p id="resultScore" class="text-5xl font-bold text-blue-600"></p>
+      </div>
+      <p id="statusMsg" class="mt-4 text-sm text-gray-400"></p>
+    </div>
+
+  </div>
+
+  <script>
+    // 顯示自訂訊息框的函數
+    function showMessage(msg, type = 'error') {
+      const msgBox = document.getElementById('messageBox');
+      msgBox.textContent = msg;
+      msgBox.className = `mb-6 p-4 rounded-lg text-white font-bold text-center transition-all ${type === 'error' ? 'bg-red-500' : 'bg-green-500'}`;
+      msgBox.classList.remove('hidden');
+      
+      // 3秒後自動隱藏
+      setTimeout(() => {
+        msgBox.classList.add('hidden');
+      }, 3000);
+    }
+
+    // 表單送出處理函數
+    function submitQuiz(event) {
+      // 防止表單預設的重新整理行為
+      event.preventDefault();
+
+      const nameInput = document.getElementById('studentName').value.trim();
+      const q1Input = document.querySelector('input[name="q1"]:checked');
+      const q2Input = document.querySelector('input[name="q2"]:checked');
+
+      // --- 1. 防呆檢查 ---
+      if (!nameInput) {
+        showMessage('請輸入你的學生姓名喔！', 'error');
+        document.getElementById('studentName').focus();
+        return;
+      }
+
+      if (!q1Input || !q2Input) {
+        showMessage('請確認每一題都已經作答！', 'error');
+        return;
+      }
+
+      // --- 2. 計算分數 ---
+      let score = 0;
+      // 第一題正解：玉山 (50分)
+      if (q1Input.value === '玉山') {
+        score += 50;
+      }
+      // 第二題正解：冰 (50分)
+      if (q2Input.value === '冰') {
+        score += 50;
+      }
+
+      // --- 3. 顯示結果 UI ---
+      document.getElementById('quizForm').classList.add('hidden'); // 隱藏測驗表單
+      const resultArea = document.getElementById('resultArea');
+      resultArea.classList.remove('hidden'); // 顯示結果區塊
+      
+      document.getElementById('resultName').textContent = `同學：${nameInput}`;
+      document.getElementById('resultScore').textContent = `${score} 分`;
+
+      // 根據分數給予不同顏色與鼓勵
+      const scoreElement = document.getElementById('resultScore');
+      if (score === 100) {
+        scoreElement.className = "text-5xl font-bold text-green-500";
+      } else if (score === 50) {
+        scoreElement.className = "text-5xl font-bold text-yellow-500";
+      } else {
+        scoreElement.className = "text-5xl font-bold text-red-500";
+      }
+
+      // --- 4. 將資料傳送至您的 Google Apps Script 後端 ---
+      const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzR6GJiR5Wj6TkIj9HvIID_bNSZqHlaWHxZQBHTlJc9IkPTw4R2ihNsKkTYlQcr__T4BQ/exec"; 
+      
+      const statusMsg = document.getElementById('statusMsg');
+      statusMsg.textContent = "成績上傳中...";
+      
+      fetch(GAS_WEB_APP_URL, {
+        method: 'POST',
+        // 我們將資料轉成純文字字串發送，可避免部分瀏覽器的嚴格 CORS 預檢問題
+        body: JSON.stringify({
+          name: nameInput,
+          score: score
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if(data.status === "success") {
+          statusMsg.textContent = "✅ 成績已成功記錄到老師的試算表中！";
+          statusMsg.classList.add("text-green-600");
+          statusMsg.classList.remove("text-gray-400");
+        } else {
+          statusMsg.textContent = "❌ 成績上傳失敗，請通知老師。";
+          statusMsg.classList.add("text-red-500");
+          statusMsg.classList.remove("text-gray-400");
+        }
+      })
+      .catch(error => {
+        console.error("Error:", error);
+        statusMsg.textContent = "❌ 網路錯誤或跨域設定問題，成績無法上傳 (請確認 GAS 權限有設為『所有人』)。";
+        statusMsg.classList.add("text-red-500");
+        statusMsg.classList.remove("text-gray-400");
+      });
+    }
+  </script>
+</body>
+</html>
