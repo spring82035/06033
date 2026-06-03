@@ -65,7 +65,35 @@
             width: 20px;
             height: 20px;
         }
-        button {
+        
+        /* 語音按鈕的專屬樣式 */
+        .voice-btn {
+            margin-top: 10px;
+            padding: 10px 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        .voice-btn:hover {
+            background-color: #2980b9;
+        }
+        .voice-btn.recording {
+            background-color: #e74c3c;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+        }
+
+        button.submit-btn {
             width: 100%;
             padding: 15px;
             background-color: #f39c12;
@@ -76,11 +104,12 @@
             font-weight: bold;
             cursor: pointer;
             transition: background-color 0.3s;
+            margin-top: 10px;
         }
-        button:hover {
+        button.submit-btn:hover {
             background-color: #d68910;
         }
-        button:disabled {
+        button.submit-btn:disabled {
             background-color: #bdc3c7;
             cursor: not-allowed;
         }
@@ -133,10 +162,11 @@
 
         <div class="form-group">
             <label for="reflection">🤔 製作過程中，遇到什麼困難？你是怎麼解決的？</label>
-            <textarea id="reflection" required placeholder="分享一下你的發現或小秘密吧..."></textarea>
+            <textarea id="reflection" required placeholder="分享一下你的發現，可以直接打字，也可以用說的喔！"></textarea>
+            <button type="button" id="voiceBtn" class="voice-btn">🎤 點我用語音輸入</button>
         </div>
 
-        <button type="submit" id="submitBtn">🚀 送出學習單</button>
+        <button type="submit" id="submitBtn" class="submit-btn">🚀 送出學習單</button>
         <div id="statusMessage"></div>
     </form>
 </div>
@@ -145,57 +175,61 @@
     // ⚠️ 老師請注意：請將下方的引號內容替換成您部署 GAS 後得到的專屬網址！
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbzPOf6B8I2NRNDgxnNsSlVLOU58WY1O7zuOsZrysTIh_wqqnfqtWPFuDepg4mJOtw0T/exec'; 
 
-    document.getElementById('worksheetForm').addEventListener('submit', function(e) {
-        e.preventDefault(); // 防止網頁重新整理
-        
-        const submitBtn = document.getElementById('submitBtn');
-        const statusMessage = document.getElementById('statusMessage');
-        
-        // 變更按鈕狀態
-        submitBtn.disabled = true;
-        submitBtn.innerText = '傳送中... ⏳';
-        statusMessage.innerText = '';
-        statusMessage.className = '';
+    // --- 語音輸入功能區塊 ---
+    const voiceBtn = document.getElementById('voiceBtn');
+    const reflectionInput = document.getElementById('reflection');
+    
+    // 檢查瀏覽器是否支援 Web Speech API
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    
+    if (SpeechRecognition) {
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'zh-TW'; // 設定為台灣中文
+        recognition.continuous = false; // 講完一句自動停止
+        recognition.interimResults = false; 
 
-        // 收集表單資料
-        const formData = {
-            classNumber: document.getElementById('classNumber').value,
-            studentName: document.getElementById('studentName').value,
-            ledColor: document.getElementById('ledColor').value,
-            isSuccess: document.querySelector('input[name="isSuccess"]:checked').value,
-            reflection: document.getElementById('reflection').value
+        let isRecording = false;
+
+        voiceBtn.addEventListener('click', () => {
+            if (isRecording) {
+                recognition.stop();
+                return;
+            }
+            recognition.start();
+        });
+
+        recognition.onstart = function() {
+            isRecording = true;
+            voiceBtn.classList.add('recording');
+            voiceBtn.innerText = '🛑 錄音中...請說話 (點擊停止)';
         };
 
-        // 將資料發送到 Google Apps Script
-        fetch(GAS_URL, {
-            method: 'POST',
-            body: JSON.stringify(formData),
-            headers: {
-                'Content-Type': 'text/plain;charset=utf-8',
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.result === 'success') {
-                statusMessage.innerText = '🎉 太棒了！你的學習單已成功送出！';
-                statusMessage.className = 'success';
-                document.getElementById('worksheetForm').reset(); // 清空表單
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            // 如果原本有文字，就自動空一格再接上新的語音文字
+            if (reflectionInput.value) {
+                reflectionInput.value += ' ' + transcript;
             } else {
-                throw new Error('伺服器回傳錯誤');
+                reflectionInput.value = transcript;
             }
-        })
-        .catch(error => {
-            statusMessage.innerText = '❌ 哎呀，傳送失敗了，請舉手請老師幫忙！';
-            statusMessage.className = 'error';
-            console.error('Error:', error);
-        })
-        .finally(() => {
-            // 恢復按鈕狀態
-            submitBtn.disabled = false;
-            submitBtn.innerText = '🚀 送出學習單';
-        });
-    });
-</script>
+        };
 
-</body>
-</html>
+        recognition.onerror = function(event) {
+            console.error('語音辨識錯誤:', event.error);
+            alert('麥克風好像沒反應喔！請確認有沒有允許網頁使用麥克風。');
+            recognition.stop();
+        };
+
+        recognition.onend = function() {
+            isRecording = false;
+            voiceBtn.classList.remove('recording');
+            voiceBtn.innerText = '🎤 點我用語音輸入';
+        };
+    } else {
+        // 若不支援（例如部分舊版瀏覽器），隱藏按鈕
+        voiceBtn.style.display = 'none';
+        console.log('此瀏覽器不支援語音辨識');
+    }
+
+    // --- 表單送出功能區塊 ---
+    document.getElementById('worksheet
