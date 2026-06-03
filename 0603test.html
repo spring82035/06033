@@ -86,7 +86,7 @@
 </div>
 
 <script>
-    // ⚠️ 老師請注意：請將下方的引號內容替換成您專屬的 GAS 網址！
+    // ⚠️ 老師請注意：請維持使用您的真實網址
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbzPOf6B8I2NRNDgxnNsSlVLOU58WY1O7zuOsZrysTIh_wqqnfqtWPFuDepg4mJOtw0T/exec'; 
 
     // --- 語音輸入功能區塊 ---
@@ -130,7 +130,6 @@
         const statusMessage = document.getElementById('statusMessage');
         const photoInput = document.getElementById('photoFile');
         
-        // 檢查照片大小限制為 3MB
         if (photoInput.files.length > 0) {
             const fileSize = photoInput.files[0].size;
             if (fileSize > 3145728) {
@@ -173,26 +172,33 @@
         }
     });
 
+    // 🌟 修正後的連線區塊：移除破壞連線的 headers，並加上詳細錯誤提示彈窗
     function sendToGAS(formData, submitBtn, statusMessage) {
         fetch(GAS_URL, {
             method: 'POST',
-            body: JSON.stringify(formData),
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+            body: JSON.stringify(formData) // 🚀 移除 headers，徹底解決跨網域阻擋問題！
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('伺服器連線異常 (狀態碼: ' + response.status + ')');
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.result === 'success') {
                 statusMessage.innerText = '🎉 太棒了！你的學習單已成功送出！';
                 statusMessage.className = 'success';
                 document.getElementById('worksheetForm').reset(); 
             } else {
-                throw new Error('伺服器回傳錯誤');
+                alert("【後端程式錯誤提示】\n原因：" + data.error);
+                throw new Error(data.error);
             }
         })
         .catch(error => {
             statusMessage.innerText = '❌ 哎呀，傳送失敗了，請舉手請老師幫忙！';
             statusMessage.className = 'error';
-            console.error('Error:', error);
+            console.error('詳細連線錯誤:', error);
+            alert("【連線失敗詳細提示】\n系統訊息：" + error.message + "\n\n常見排查：\n1. 請確認後端 GAS 部署時，有選擇「新版本」\n2. 存取權限是否忘記設為「所有人 (Anyone)」");
         })
         .finally(() => {
             submitBtn.disabled = false;
