@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💡 紙電路實作學習單</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, '微軟正黑體', sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 24px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        input[type="text"], select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        input[type="text"]:focus, select:focus, textarea:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        textarea {
+            resize: vertical;
+            height: 100px;
+        }
+        .radio-group {
+            display: flex;
+            gap: 20px;
+        }
+        .radio-group label {
+            font-weight: normal;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        .radio-group input[type="radio"] {
+            margin-right: 8px;
+            width: 20px;
+            height: 20px;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: #f39c12;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #d68910;
+        }
+        button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+        #statusMessage {
+            text-align: center;
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .success { color: #27ae60; }
+        .error { color: #c0392b; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>💡 紙電路實作任務回報</h1>
+    <form id="worksheetForm">
+        
+        <div class="form-group">
+            <label for="classNumber">🏫 班級與座號 (例如：301-05)</label>
+            <input type="text" id="classNumber" required placeholder="請輸入班級座號">
+        </div>
+
+        <div class="form-group">
+            <label for="studentName">👤 你的名字</label>
+            <input type="text" id="studentName" required placeholder="請輸入姓名">
+        </div>
+
+        <div class="form-group">
+            <label for="ledColor">🌈 你的 LED 燈是什麼顏色的？</label>
+            <select id="ledColor" required>
+                <option value="" disabled selected>請選擇顏色...</option>
+                <option value="紅色">🔴 紅色</option>
+                <option value="黃色">🟡 黃色</option>
+                <option value="綠色">🟢 綠色</option>
+                <option value="藍色">🔵 藍色</option>
+                <option value="白色">⚪ 白色</option>
+                <option value="其他">✨ 其他</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>⚡ 測試結果：電路成功發光了嗎？</label>
+            <div class="radio-group">
+                <label><input type="radio" name="isSuccess" value="是，超級亮！" required> 🌟 是，超級亮！</label>
+                <label><input type="radio" name="isSuccess" value="沒有，我還在找原因"> 🔍 沒有，我還在找原因</label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="reflection">🤔 製作過程中，遇到什麼困難？你是怎麼解決的？</label>
+            <textarea id="reflection" required placeholder="分享一下你的發現或小秘密吧..."></textarea>
+        </div>
+
+        <button type="submit" id="submitBtn">🚀 送出學習單</button>
+        <div id="statusMessage"></div>
+    </form>
+</div>
+
+<script>
+    // ⚠️ 老師請注意：請將下方的引號內容替換成您部署 GAS 後得到的專屬網址！
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbzPOf6B8I2NRNDgxnNsSlVLOU58WY1O7zuOsZrysTIh_wqqnfqtWPFuDepg4mJOtw0T/exec'; 
+
+    document.getElementById('worksheetForm').addEventListener('submit', function(e) {
+        e.preventDefault(); // 防止網頁重新整理
+        
+        const submitBtn = document.getElementById('submitBtn');
+        const statusMessage = document.getElementById('statusMessage');
+        
+        // 變更按鈕狀態
+        submitBtn.disabled = true;
+        submitBtn.innerText = '傳送中... ⏳';
+        statusMessage.innerText = '';
+        statusMessage.className = '';
+
+        // 收集表單資料
+        const formData = {
+            classNumber: document.getElementById('classNumber').value,
+            studentName: document.getElementById('studentName').value,
+            ledColor: document.getElementById('ledColor').value,
+            isSuccess: document.querySelector('input[name="isSuccess"]:checked').value,
+            reflection: document.getElementById('reflection').value
+        };
+
+        // 將資料發送到 Google Apps Script
+        fetch(GAS_URL, {
+            method: 'POST',
+            body: JSON.stringify(formData),
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.result === 'success') {
+                statusMessage.innerText = '🎉 太棒了！你的學習單已成功送出！';
+                statusMessage.className = 'success';
+                document.getElementById('worksheetForm').reset(); // 清空表單
+            } else {
+                throw new Error('伺服器回傳錯誤');
+            }
+        })
+        .catch(error => {
+            statusMessage.innerText = '❌ 哎呀，傳送失敗了，請舉手請老師幫忙！';
+            statusMessage.className = 'error';
+            console.error('Error:', error);
+        })
+        .finally(() => {
+            // 恢復按鈕狀態
+            submitBtn.disabled = false;
+            submitBtn.innerText = '🚀 送出學習單';
+        });
+    });
+</script>
+
+</body>
+</html>
