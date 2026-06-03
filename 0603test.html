@@ -5,122 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>💡 紙電路實作學習單</title>
     <style>
-        body {
-            font-family: 'Helvetica Neue', Arial, '微軟正黑體', sans-serif;
-            background-color: #f4f7f6;
-            color: #333;
-            line-height: 1.6;
-            padding: 20px;
-        }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: #fff;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        h1 {
-            text-align: center;
-            color: #2c3e50;
-            font-size: 24px;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            font-size: 18px;
-        }
-        input[type="text"], select, textarea {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            box-sizing: border-box;
-            font-size: 16px;
-        }
-        input[type="text"]:focus, select:focus, textarea:focus {
-            border-color: #3498db;
-            outline: none;
-        }
-        textarea {
-            resize: vertical;
-            height: 100px;
-        }
-        .radio-group {
-            display: flex;
-            gap: 20px;
-        }
-        .radio-group label {
-            font-weight: normal;
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-        }
-        .radio-group input[type="radio"] {
-            margin-right: 8px;
-            width: 20px;
-            height: 20px;
-        }
+        body { font-family: 'Helvetica Neue', Arial, '微軟正黑體', sans-serif; background-color: #f4f7f6; color: #333; line-height: 1.6; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; font-size: 24px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; font-size: 18px; }
+        input[type="text"], select, textarea, input[type="file"] { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        input[type="text"]:focus, select:focus, textarea:focus { border-color: #3498db; outline: none; }
+        textarea { resize: vertical; height: 100px; }
+        .radio-group { display: flex; gap: 20px; }
+        .radio-group label { font-weight: normal; display: flex; align-items: center; cursor: pointer; }
+        .radio-group input[type="radio"] { margin-right: 8px; width: 20px; height: 20px; }
         
-        /* 語音按鈕的專屬樣式 */
-        .voice-btn {
-            margin-top: 10px;
-            padding: 10px 15px;
-            background-color: #3498db;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-block;
-        }
-        .voice-btn:hover {
-            background-color: #2980b9;
-        }
-        .voice-btn.recording {
-            background-color: #e74c3c;
-            animation: pulse 1.5s infinite;
-        }
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
-        }
+        .voice-btn { margin-top: 10px; padding: 10px 15px; background-color: #3498db; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; display: inline-block; }
+        .voice-btn:hover { background-color: #2980b9; }
+        .voice-btn.recording { background-color: #e74c3c; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); } 100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); } }
 
-        button.submit-btn {
-            width: 100%;
-            padding: 15px;
-            background-color: #f39c12;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 20px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            margin-top: 10px;
-        }
-        button.submit-btn:hover {
-            background-color: #d68910;
-        }
-        button.submit-btn:disabled {
-            background-color: #bdc3c7;
-            cursor: not-allowed;
-        }
-        #statusMessage {
-            text-align: center;
-            margin-top: 15px;
-            font-weight: bold;
-            font-size: 18px;
-        }
+        button.submit-btn { width: 100%; padding: 15px; background-color: #f39c12; color: white; border: none; border-radius: 8px; font-size: 20px; font-weight: bold; cursor: pointer; transition: background-color 0.3s; margin-top: 10px; }
+        button.submit-btn:hover { background-color: #d68910; }
+        button.submit-btn:disabled { background-color: #bdc3c7; cursor: not-allowed; }
+        #statusMessage { text-align: center; margin-top: 15px; font-weight: bold; font-size: 18px; }
         .success { color: #27ae60; }
         .error { color: #c0392b; }
+        .hint-text { font-size: 14px; color: #7f8c8d; margin-top: 5px; display: block; }
     </style>
 </head>
 <body>
@@ -166,81 +74,74 @@
             <button type="button" id="voiceBtn" class="voice-btn">🎤 點我用語音輸入</button>
         </div>
 
+        <div class="form-group">
+            <label for="photoFile">📸 拍下你的紙電路成果 (選填)</label>
+            <input type="file" id="photoFile" accept="image/*">
+            <span class="hint-text">💡 檔案請小於 3MB。如果使用平板，可以直接點擊選擇「相機」拍照喔！</span>
+        </div>
+
         <button type="submit" id="submitBtn" class="submit-btn">🚀 送出學習單</button>
         <div id="statusMessage"></div>
     </form>
 </div>
 
 <script>
-    // ⚠️ 老師請注意：請將下方的引號內容替換成您部署 GAS 後得到的專屬網址！
+    // ⚠️ 老師請注意：請將下方的引號內容替換成您專屬的 GAS 網址！
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbzPOf6B8I2NRNDgxnNsSlVLOU58WY1O7zuOsZrysTIh_wqqnfqtWPFuDepg4mJOtw0T/exec'; 
 
     // --- 語音輸入功能區塊 ---
     const voiceBtn = document.getElementById('voiceBtn');
     const reflectionInput = document.getElementById('reflection');
-    
-    // 檢查瀏覽器是否支援 Web Speech API
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     
     if (SpeechRecognition) {
         const recognition = new SpeechRecognition();
-        recognition.lang = 'zh-TW'; // 設定為台灣中文
-        recognition.continuous = false; // 講完一句自動停止
+        recognition.lang = 'zh-TW'; 
+        recognition.continuous = false; 
         recognition.interimResults = false; 
-
         let isRecording = false;
 
         voiceBtn.addEventListener('click', () => {
-            if (isRecording) {
-                recognition.stop();
-                return;
-            }
+            if (isRecording) { recognition.stop(); return; }
             recognition.start();
         });
-
         recognition.onstart = function() {
-            isRecording = true;
-            voiceBtn.classList.add('recording');
-            voiceBtn.innerText = '🛑 錄音中...請說話 (點擊停止)';
+            isRecording = true; voiceBtn.classList.add('recording'); voiceBtn.innerText = '🛑 錄音中...請說話 (點擊停止)';
         };
-
         recognition.onresult = function(event) {
             const transcript = event.results[0][0].transcript;
-            // 如果原本有文字，就自動空一格再接上新的語音文字
-            if (reflectionInput.value) {
-                reflectionInput.value += ' ' + transcript;
-            } else {
-                reflectionInput.value = transcript;
-            }
+            reflectionInput.value = reflectionInput.value ? reflectionInput.value + ' ' + transcript : transcript;
         };
-
         recognition.onerror = function(event) {
-            console.error('語音辨識錯誤:', event.error);
-            alert('麥克風好像沒反應喔！請確認有沒有允許網頁使用麥克風。');
-            recognition.stop();
+            console.error('語音辨識錯誤:', event.error); alert('麥克風好像沒反應喔！請確認有沒有允許網頁使用麥克風。'); recognition.stop();
         };
-
         recognition.onend = function() {
-            isRecording = false;
-            voiceBtn.classList.remove('recording');
-            voiceBtn.innerText = '🎤 點我用語音輸入';
+            isRecording = false; voiceBtn.classList.remove('recording'); voiceBtn.innerText = '🎤 點我用語音輸入';
         };
     } else {
-        // 若不支援（例如部分舊版瀏覽器），隱藏按鈕
         voiceBtn.style.display = 'none';
-        console.log('此瀏覽器不支援語音辨識');
     }
 
-    // --- 表單送出功能區塊 ---
+    // --- 表單送出與照片處理功能區塊 ---
     document.getElementById('worksheetForm').addEventListener('submit', function(e) {
         e.preventDefault(); 
         
         const submitBtn = document.getElementById('submitBtn');
         const statusMessage = document.getElementById('statusMessage');
+        const photoInput = document.getElementById('photoFile');
         
+        // 檢查照片大小限制為 3MB
+        if (photoInput.files.length > 0) {
+            const fileSize = photoInput.files[0].size;
+            if (fileSize > 3145728) {
+                alert("照片檔案太大了！請將相機畫質調低，或選擇小於 3MB 的照片喔。");
+                return;
+            }
+        }
+
         submitBtn.disabled = true;
-        submitBtn.innerText = '傳送中... ⏳';
-        statusMessage.innerText = '';
+        submitBtn.innerText = '相片與資料傳送中... ⏳';
+        statusMessage.innerText = '如果有傳照片會稍微久一點，請耐心等候喔！';
         statusMessage.className = '';
 
         const formData = {
@@ -248,15 +149,35 @@
             studentName: document.getElementById('studentName').value,
             ledColor: document.getElementById('ledColor').value,
             isSuccess: document.querySelector('input[name="isSuccess"]:checked').value,
-            reflection: document.getElementById('reflection').value
+            reflection: document.getElementById('reflection').value,
+            fileData: null,
+            fileName: null,
+            mimeType: null
         };
 
+        if (photoInput.files.length > 0) {
+            const file = photoInput.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = function(event) {
+                const base64String = event.target.result.split(',')[1];
+                formData.fileData = base64String;
+                formData.fileName = file.name;
+                formData.mimeType = file.type;
+                
+                sendToGAS(formData, submitBtn, statusMessage);
+            };
+            reader.readAsDataURL(file);
+        } else {
+            sendToGAS(formData, submitBtn, statusMessage);
+        }
+    });
+
+    function sendToGAS(formData, submitBtn, statusMessage) {
         fetch(GAS_URL, {
             method: 'POST',
             body: JSON.stringify(formData),
-            headers: {
-                'Content-Type': 'text/plain;charset=utf-8',
-            }
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' }
         })
         .then(response => response.json())
         .then(data => {
@@ -277,7 +198,7 @@
             submitBtn.disabled = false;
             submitBtn.innerText = '🚀 送出學習單';
         });
-    });
+    }
 </script>
 
 </body>
