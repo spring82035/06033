@@ -173,7 +173,7 @@
 
 <script>
     // ⚠️ 老師請注意：請將下方的引號內容替換成您部署 GAS 後得到的專屬網址！
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbzPOf6B8I2NRNDgxnNsSlVLOU58WY1O7zuOsZrysTIh_wqqnfqtWPFuDepg4mJOtw0T/exec'; 
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbz_XXXXXXXXXXXXXX/exec'; 
 
     // --- 語音輸入功能區塊 ---
     const voiceBtn = document.getElementById('voiceBtn');
@@ -232,4 +232,53 @@
     }
 
     // --- 表單送出功能區塊 ---
-    document.getElementById('worksheet
+    document.getElementById('worksheetForm').addEventListener('submit', function(e) {
+        e.preventDefault(); 
+        
+        const submitBtn = document.getElementById('submitBtn');
+        const statusMessage = document.getElementById('statusMessage');
+        
+        submitBtn.disabled = true;
+        submitBtn.innerText = '傳送中... ⏳';
+        statusMessage.innerText = '';
+        statusMessage.className = '';
+
+        const formData = {
+            classNumber: document.getElementById('classNumber').value,
+            studentName: document.getElementById('studentName').value,
+            ledColor: document.getElementById('ledColor').value,
+            isSuccess: document.querySelector('input[name="isSuccess"]:checked').value,
+            reflection: document.getElementById('reflection').value
+        };
+
+        fetch(GAS_URL, {
+            method: 'POST',
+            body: JSON.stringify(formData),
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.result === 'success') {
+                statusMessage.innerText = '🎉 太棒了！你的學習單已成功送出！';
+                statusMessage.className = 'success';
+                document.getElementById('worksheetForm').reset(); 
+            } else {
+                throw new Error('伺服器回傳錯誤');
+            }
+        })
+        .catch(error => {
+            statusMessage.innerText = '❌ 哎呀，傳送失敗了，請舉手請老師幫忙！';
+            statusMessage.className = 'error';
+            console.error('Error:', error);
+        })
+        .finally(() => {
+            submitBtn.disabled = false;
+            submitBtn.innerText = '🚀 送出學習單';
+        });
+    });
+</script>
+
+</body>
+</html>
